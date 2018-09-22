@@ -114,7 +114,7 @@ class SearchAgent(Agent):
         problem = self.searchType(state) # Makes a new search problem
         self.actions  = self.searchFunction(problem) # Find a path
         totalCost = problem.getCostOfActions(self.actions)
-        print('Path found with total cost of %d in %.1f seconds' % (totalCost, time.time() - starttime))
+        print('Path found with total cost of %d in %.3f seconds' % (totalCost, time.time() - starttime))
         if '_expanded' in dir(problem): print('Search nodes expanded: %d' % problem._expanded)
 
     def getAction(self, state):
@@ -288,7 +288,6 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        print startingGameState
         
 
     def getStartState(self):
@@ -298,7 +297,6 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         return (self.startingPosition,self.corners)
-        #util.raiseNotDefined()
 
     def isGoalState(self, state):
         """
@@ -307,7 +305,6 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         isGoal = (len(state[1]) == 0)
         return isGoal
-        #util.raiseNotDefined()
 
     def getSuccessors(self, state):
         """
@@ -334,24 +331,18 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             
+            # Check if the current position is a wall. If it's not a wall then move ahead.
             if self.walls[nextx][nexty]==False:
                 nextPos = (nextx,nexty)
-                cost = 1
-#                cornersRemaining = state[1][:]
                 if nextPos in state[1]:
-                    cornersRemaining=[]
-                    cornersRemaining = state[1][:]
-                    print 'random check' + str(cornersRemaining)
-                    #cornersRemaining.remove(nextPos)
-                    listx = list(cornersRemaining)
-                    listx.remove(nextPos);
-                    cornersRemaining = tuple(listx)
-                    nextState = (nextPos,cornersRemaining)
-                    
-                    successors.append((nextState,action,cost))
+                    cornersLeft = state[1][:]
+                    listOfCorners = list(cornersLeft)
+                    listOfCorners.remove(nextPos)
+                    cornersLeft = tuple(listOfCorners)
+                    nextState = (nextPos,cornersLeft) 
+                    successors.append((nextState,action,1))
                 else:
-                    successors.append(((nextPos, state[1]), action, cost))
-            "*** YOUR CODE HERE ***"
+                    successors.append(((nextPos, state[1]), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -383,28 +374,26 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = []
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-    print corners
 
-    "*** YOUR CODE HERE ***"
-    heuristic = 0
+
+    distance = 0
     ref = state[0]
     
+    # Using Manhatten Heuristic
     while len(corners) > 0:
         x,y = ref
-        distances=[]
+        nextPossibleStatesDistances=[]
         for x2,y2 in corners:
-            distances.append(manhattan(x2,y2,x,y))
-        heuristic = heuristic + min(distances)
-        ref = corners[distances.index(min(distances))]
-        listx = list(corners)
-        listx.remove(ref)
-        corners = tuple(listx)
-        #corners.remove(ref)
+            nextPossibleStatesDistances.append(manhattan(x2,y2,x,y))
+        distance = distance + min(nextPossibleStatesDistances)
+        ref = corners[nextPossibleStatesDistances.index(min(nextPossibleStatesDistances))]
+        listOfCorners = list(corners)
+        listOfCorners.remove(ref)
+        corners = tuple(listOfCorners)
     
-    return heuristic
+    return distance
     #return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
@@ -469,8 +458,8 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
-euclidean = lambda x1, y1, x2, y2: (((x1 - x2) ** 2) + ((y1 - y2) ** 2)) ** 0.5
 manhattan = lambda x1, y1, x2, y2: abs(x1 - x2) + abs(y1 - y2)
+
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -551,7 +540,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        #util.raiseNotDefined()
+        util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
