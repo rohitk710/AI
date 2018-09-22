@@ -89,22 +89,26 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     
-
+    #A list to keep track of visited states.
     visited = []
-    #stack for DFS
+    #Creating a stack of states to do bfs.
     stateStack = util.Stack()
+    #Push the start state
     stateStack.push([(problem.getStartState(),"Stop",0)])
     
+    #Iterate through the queue till either the stack is not empty or we haven't reached the goal state
     while not stateStack.isEmpty():
         pacway = stateStack.pop()
         
         curr = pacway[len(pacway)-1]
         curr = curr[0]
         
+        #If the current state is goal exit and return
         if problem.isGoalState(curr):
-            #print [p[1] for p in pacway]
             return [p[1] for p in pacway][1:]
         
+        #If the current state is not a goal mark it as visited and check for all it's successor
+        #If the successors are not visited put them in the stack.
         if curr not in visited:
             visited.append(curr)
             
@@ -116,45 +120,47 @@ def depthFirstSearch(problem):
             
     return []
     
-    #util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    #util.raiseNotDefined()
+    """Search the shallowest nodes in the search tree first.
     
     print "Start:", problem.getStartState()
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    
-    #visited list to keep the track of states
+    "*** YOUR CODE HERE ***"
+    """
+
+    #A list to keep track of visited states.
     visited = []
-    #queue for BFS
-    stateQueue = util.PriorityQueueWithFunction(len)
-    stateQueue.push([(problem.getStartState(),"Stop",0)])
+    #Creating a queue of states to do bfs.
+    stateQueue = util.Queue()
+    #Push the start state
+    stateQueue.push([(problem.getStartState(), "Stop", 0)])
     
+    #Iterate through the queue till either the queue is not empty or we haven't reached the goal state
     while not stateQueue.isEmpty():
         pacway = stateQueue.pop()
         
         curr = pacway[len(pacway)-1]
         curr = curr[0]
         
+        #If the current state is goal exit and return
         if problem.isGoalState(curr):
-            #print [p[1] for p in pacway]
             return [p[1] for p in pacway][1:]
         
+        #If the current state is not a goal mark it as visited and check for all it's successor
+        #If the successors are not visited put them in the queue.
         if curr not in visited:
             visited.append(curr)
-            
-            for succ in problem.getSuccessors(curr):
-                if succ[0] not in visited:
-                    succPath = pacway[:]
-                    succPath.append(succ)
-                    stateQueue.push(succPath)
+
+        for succ in problem.getSuccessors(curr):
+            if succ[0] not in visited:
+                succPath = pacway[:]
+                succPath.append(succ)
+                stateQueue.push(succPath)
             
     return []
     
-    #return graphSearch(problem, frontier)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
