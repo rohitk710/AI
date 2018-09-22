@@ -149,12 +149,11 @@ def breadthFirstSearch(problem):
             return [p[1] for p in pacway][1:]
         
         #If the current state is not a goal mark it as visited and check for all it's successor
-        #If the successors are not visited put them in the queue.
-        if curr not in visited:
-            visited.append(curr)
-
+        #If the successors are not visited put them in the queue and mark them visited.
+        visited.append(curr)
         for succ in problem.getSuccessors(curr):
             if succ[0] not in visited:
+                visited.append(succ[0])
                 succPath = pacway[:]
                 succPath.append(succ)
                 stateQueue.push(succPath)
@@ -165,33 +164,36 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    lambdaFunction = lambda path: problem.getCostOfActions([x[1] for x in path][1:])
+
+    costFunction = lambda path: problem.getCostOfActions([x[1] for x in path][1:])
     
-    #visited list to keep the track of states
+    #A list to keep track of visited states.
     visited = []
-    #queue for BFS
-    stateQueue = util.PriorityQueueWithFunction(lambdaFunction)
+    #Creating a queue of states to do BFS.
+    statePriorityQueue = util.PriorityQueueWithFunction(costFunction)
     
-    stateQueue.push([(problem.getStartState(),"Stop",0)])
+    statePriorityQueue.push([(problem.getStartState(),"Stop",0)])
     
-    while not stateQueue.isEmpty():
-        pacway = stateQueue.pop()
+    #Iterate through the queue till either the queue is not empty or we haven't reached the goal state
+    while not statePriorityQueue.isEmpty():
+        pacway = statePriorityQueue.pop()
         
         curr = pacway[len(pacway)-1]
         curr = curr[0]
-        
+
+        #If the current state is goal exit and return
         if problem.isGoalState(curr):
-            #print [p[1] for p in pacway]
             return [p[1] for p in pacway][1:]
         
+        #If the current state is not a goal mark it as visited and check for all it's successor
+        #If the successors are not visited put them in the queue.
         if curr not in visited:
-            visited.append(curr)
-            
+            visited.append(curr)       
             for succ in problem.getSuccessors(curr):
                 if succ[0] not in visited:
                     succPath = pacway[:]
                     succPath.append(succ)
-                    stateQueue.push(succPath)
+                    statePriorityQueue.push(succPath)
             
     return []
     
@@ -207,28 +209,30 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     #print problem.getCostOfActions([x[1] for x in path][1:])
-    lambdaFunction = lambda path: problem.getCostOfActions([x[1] for x in path][1:])+heuristic(path[-1][0],problem)
+    costFunction = lambda path: problem.getCostOfActions([x[1] for x in path][1:]) + heuristic(path[-1][0], problem)
                                                 
-    #visited list to keep the track of states
+    #A list to keep track of visited states.
     visited = []
-    #queue for BFS
-    stateQueue = util.PriorityQueueWithFunction(lambdaFunction)
+    #Creating a queue of states to do BFS.
+    stateQueue = util.PriorityQueueWithFunction(costFunction)
     
     stateQueue.push([(problem.getStartState(),"Stop",0)])
     
+    #Iterate through the queue till either the queue is not empty or we haven't reached the goal state
     while not stateQueue.isEmpty():
         pacway = stateQueue.pop()
         
         curr = pacway[len(pacway)-1]
         curr = curr[0]
-        
+
+        #If the current state is goal exit and return
         if problem.isGoalState(curr):
-            #print [p[1] for p in pacway]
             return [p[1] for p in pacway][1:]
         
+        #If the current state is not a goal mark it as visited and check for all it's successor
+        #If the successors are not visited put them in the queue.
         if curr not in visited:
             visited.append(curr)
-            
             for succ in problem.getSuccessors(curr):
                 if succ[0] not in visited:
                     succPath = pacway[:]
