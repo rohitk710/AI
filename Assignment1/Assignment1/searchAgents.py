@@ -380,7 +380,8 @@ def cornersHeuristic(state, problem):
 
     distance = 0
     ref = state[0]
-    
+
+
     # Using Manhatten Heuristic
     while len(corners) > 0:
         x,y = ref
@@ -492,23 +493,23 @@ def foodHeuristic(state, problem):
     #print 'I am inside foodHur'
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    flist = foodGrid.asList()
-    if len(flist)==0:
+    foodGridList = foodGrid.asList()
+    if len(foodGridList)==0:
         return 0
     
     x,y = position
     distances = []
-    for x2,y2 in flist:
+    for x2,y2 in foodGridList:
         distances.append(manhattan(x2,y2,x,y))
-    closest = min(distances)
-    distances.remove(min(distances))
+    closestPosition = min(distances)
+    distances.remove(closestPosition)
     
     if len(distances) == 0:
-        average =  0
+        averageCost =  0
     else:
-        average = sum(distances)/len(distances)
+        averageCost = sum(distances)/len(distances)
     
-    return closest + average
+    return closestPosition + averageCost
 
 class ClosestDotSearchAgent(SearchAgent):
     
