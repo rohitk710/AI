@@ -27,8 +27,6 @@ class ReflexAgent(Agent):
       it in any way you see fit, so long as you don't touch our method
       headers.
     """
-
-
     def getAction(self, gameState):
         """
         You do not need to change this method, but you're welcome to.
@@ -71,13 +69,10 @@ class ReflexAgent(Agent):
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        #print ('code is running')
         #check the closest ghost distance
         ghostNearMe = min([manhattanDistance(s.getPosition(),newPos) for s in newGhostStates])
-        #print (ghostNearMe)
         #defeat is imminent
         if ghostNearMe <= 1:
           return -1000
@@ -89,7 +84,6 @@ class ReflexAgent(Agent):
           foodNearMe = 0.0
         else:
           foodNearMe = min(foodDistanceList)
-        #print(minFood,foodNearMe)
         weight = successorGameState.getScore() - foodNearMe - 100*(successorGameState.getNumFood() - currentGameState.getNumFood())
         if weight == 0:
           return 1
@@ -149,12 +143,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        #print ('start')
         mm = self.minmaxFunction(0,gameState,0)
-        # print mm
-        #print (mm)
         return mm[-1]
-
+        
     def minmaxFunction(self,agent, gameState, depth):
       #check the terminal case, when no further recursion is required
       if depth == self.depth:
@@ -169,7 +160,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         temp.append(gameState.generateSuccessor(agent, move))
         temp.append(move)
         possibleStates.append(temp)
-      #print ((possibleStates),'in mine')
 
       if len(possibleStates) == 0:
         possibleStates = [(gameState, None)]
@@ -182,18 +172,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
           nextVal = self.minmaxFunction((agent+1)%gameState.getNumAgents(), gState, depth)
           nextVal.append(action)
           maxVal = max(maxVal,nextVal)
-          #print (maxVal)
         return (maxVal)
       #else we choose the min value
       else:
         minValue = [100000000000]
         
         for gState,action in possibleStates:
-          #print (gState,action) 
           nextVal = self.minmaxFunction((agent+1)%gameState.getNumAgents(), gState, depth + ((agent+1)%gameState.getNumAgents()==0))
           nextVal.append(action)
           minValue = min(minValue,nextVal)
-        
         return (minValue)
 
 
@@ -208,7 +195,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         ab  = self.alphaBetaFunction(0,gameState,0,-100000000000.0,100000000000.0)
-        #print ab[-1]
         return ab[-1]
 
     def alphaBetaFunction(self,agent, gameState, depth, alpha, beta):
@@ -234,13 +220,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       if agent == 0:
         maxVal = [-100000000000.0,None]
         for action in actions:
-          #nextVal = gameState.generateSuccessor(agent, action)
           nextVal = self.alphaBetaFunction((agent+1)%gameState.getNumAgents(),gameState.generateSuccessor(agent, action),depth,alpha,beta)
           nextVal.append(action)
-          # print (len(nextVal))
           maxVal = max(maxVal,nextVal)
           if (maxVal)[0]>beta:
-            #print ('I am here',maxVal[0])
             return maxVal
           
           alpha = max(maxVal[0],alpha)
@@ -248,20 +231,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       #ghost's turn
       else:
         minVal = [100000000000.0,None]
-        #print ('I am here')
         for action in actions:
           
           nextVal = self.alphaBetaFunction((agent+1)%gameState.getNumAgents(),gameState.generateSuccessor(agent, action),depth + (((agent+1)%gameState.getNumAgents()) == 0),alpha,beta)
           nextVal.append(action)
-          # print (len(nextVal))
           minVal = min(minVal,nextVal)
           if minVal[0]<alpha:
-            #print ('I am here',minVal[0])
             return minVal
           
           beta = min(minVal[0],beta)
           minMaxFlag = 2
-          # print (minVal)
       
       if minMaxFlag == 1:
         return maxVal
@@ -283,7 +262,51 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        expectiMax = self.expectiMaxFunction(0, gameState, 0)
+        return expectiMax[-1]
+
+    def expectiMaxFunction(self, agent, gameState, depth):
+      
+      if depth == self.depth or gameState.isWin() or gameState.isLose():
+        ans = list()
+        ans.append(self.evaluationFunction(gameState))
+        return ans
+      
+      #keep all the possible states in a list
+      possibleStates = list()
+      for move in gameState.getLegalActions(agent):
+        temp = list()
+        temp.append(gameState.generateSuccessor(agent, move))
+        temp.append(move)
+        possibleStates.append(temp)
+
+      if len(possibleStates) == 0:
+        possibleStates = [(gameState, None)]
+      
+      #if pacman's turn , means agent is 0, we choose the max of all possible
+      if agent == 0:
+        maxVal = [-100000000]
+        
+        for gState,action in possibleStates:
+          nextVal = self.expectiMaxFunction((agent+1)%gameState.getNumAgents(), gState, depth)
+          nextVal.append(action)
+          maxVal = max(maxVal,nextVal)
+        return (maxVal)
+
+      #else we form the expected value
+      else:
+        expectedValue = []
+        expectedVal = 0
+        expectedAction= None
+        actions = gameState.getLegalActions(agent)
+        for gState,action in possibleStates:
+          nextVal = self.expectiMaxFunction((agent+1)%gameState.getNumAgents(), gState, depth + ((agent+1)%gameState.getNumAgents()==0))
+          expectedVal += float(nextVal[0])/float(len(actions))
+          expectedAction = action
+        expectedValue.append(expectedVal)
+        expectedValue.append(expectedAction)  
+        return (expectedValue)
 
 def betterEvaluationFunction(currentGameState):
     """

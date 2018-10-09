@@ -167,6 +167,9 @@ class GameState:
     def getScore( self ):
         return float(self.data.score)
 
+    def getExplored( self ):
+        return len(self.getAndResetExplored())
+
     def getCapsules(self):
         """
         Returns a list of positions (x,y) of the remaining capsules.
@@ -629,6 +632,8 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
     import __main__
     __main__.__dict__['_display'] = display
 
+    statesExploredList=[]
+    timeTakenList=[]
     rules = ClassicGameRules(timeout)
     games = []
 
@@ -643,9 +648,14 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
             gameDisplay = display
             rules.quiet = False
         game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
-        game.run()
-        if not beQuiet: games.append(game)
+        import time
+        start_time = time.time()
 
+        game.run()
+        if not beQuiet: 
+            games.append(game)
+            statesExploredList.append(game.state.getExplored())
+            timeTakenList.append((time.time() - start_time))
         if record:
             import time, cPickle
             fname = ('recorded-game-%d' % (i + 1)) +  '-'.join([str(t) for t in time.localtime()[1:6]])
@@ -662,7 +672,8 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         print 'Scores:       ', ', '.join([str(score) for score in scores])
         print 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate)
         print 'Record:       ', ', '.join([ ['Loss', 'Win'][int(w)] for w in wins])
-
+        print 'Explored State: ', ', '.join([str(statesExplored) for statesExplored in statesExploredList])
+        print 'Time taken: ', ', '.join([str(timeTaken) for timeTaken in timeTakenList])
     return games
 
 if __name__ == '__main__':
