@@ -110,9 +110,15 @@ with open(Ytest_predict_name, "wb") as f:
 
 print("Output files generated")
 
+# 0.01
+# Tree prediction accuracy:  0.73536
+# Output file prediction accuracy:  0.73536
 
-
-
+# 0.05
+# Data Loading: done
+# Tree prediction accuracy:  0.73452
+# Output file prediction accuracy:  0.73452
+# Tree prediction matches output file
 
 
 
